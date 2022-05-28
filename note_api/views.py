@@ -1,3 +1,9 @@
-from django.shortcuts import render
+from rest_framework.generics import RetrieveUpdateDestroyAPIView, ListCreateAPIView
 
-# Create your views here.
+
+class NoteListCreateAPIView(ListCreateAPIView):
+    pass
+
+
+class NoteDetailAPIView(RetrieveUpdateDestroyAPIView):
+    pass
