@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'note',
+    'note_api',
 
 ]
 
