@@ -2,7 +2,7 @@ from rest_framework.generics import RetrieveUpdateDestroyAPIView, ListCreateAPIV
 from django.db.models import Q
 
 from note.models import Note
-from . import serializers
+from . import serializers, filters
 
 
 class NoteListCreateAPIView(ListCreateAPIView):
@@ -21,7 +21,28 @@ class NoteListCreateAPIView(ListCreateAPIView):
         serializer.save(author=self.request.user)
 
     def filter_queryset(self, queryset):
-        pass
+        if 'status' in self.request.query_params:
+            queryset = filters.note_status_filter(
+                queryset,
+                status=self.request.query_params.get('status')
+            )
+        elif 'status_1' in self.request.query_params and 'status_2' in self.request.query_params:
+            queryset = filters.note_multi_status_filter(
+                queryset,
+                status_1=self.request.query_params.get('status_1'),
+                status_2=self.request.query_params.get('status_2'),
+            )
+        elif 'important' in self.request.query_params:
+            queryset = filters.note_important_filter(
+                queryset,
+                important=self.request.query_params.get('important')
+            )
+        elif 'public' in self.request.query_params:
+            queryset = filters.note_public_filter(
+                queryset,
+                public=self.request.query_params.get('public')
+            )
+        return queryset
 
 
 class NoteDetailAPIView(RetrieveUpdateDestroyAPIView):
