@@ -15,6 +15,7 @@ def note_status_filter(queryset, status: Optional[str]):
         return queryset
 
 
+# ToDo
 def note_multi_status_filter(queryset, status_1: Optional[str], status_2: Optional[str]):
     if status_1 is None:
         return note_status_filter(queryset, status_2)
