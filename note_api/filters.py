@@ -1,7 +1,7 @@
 from typing import Optional
 
 
-def note_create_at__year_filter(queryset, year: Optional[int]):
+def note_status_filter(queryset, year: Optional[int]):
     """
     Фильтрация записей по состоянию (status).
     """
@@ -11,7 +11,7 @@ def note_create_at__year_filter(queryset, year: Optional[int]):
         return queryset
 
 
-def note_update_at__month__gte_filter(queryset, month: Optional[int]):
+def note_important_filter(queryset, month: Optional[int]):
     """
     Фильтрация записей по важности (important).
     """
@@ -21,7 +21,7 @@ def note_update_at__month__gte_filter(queryset, month: Optional[int]):
         return queryset
 
 
-def note_create_at__year_filter(queryset, year: Optional[int]):
+def note_public_filter(queryset, year: Optional[int]):
     """
     Фильтрация записей по публичности (public).
     """
