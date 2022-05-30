@@ -15,5 +15,9 @@ Including another URLconf
 """
 from django.urls import path
 
-# urlpatterns = [
-# ]
+from . import views
+
+urlpatterns = [
+    # path('about/', views.AboutView.as_view()),
+    path('about/', views.AboutTemplateView.as_view()),
+]
