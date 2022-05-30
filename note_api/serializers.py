@@ -6,17 +6,9 @@ from note import models
 
 
 class CommentPostSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(
-        slug_field='username',
-        read_only=True
-    )
-
     class Meta:
         model = models.Comment
-        fields = (
-            'id', 'note', 'rating',
-            'author'
-        )
+        fields = '__all__'
 
 
 class NoteSerializer(serializers.ModelSerializer):

@@ -6,6 +6,7 @@ from . import serializers, filters
 
 
 class CommentNoteListCreateAPIView(ListCreateAPIView):
+    # ToDo Сделать чтобы нельзя было добавить оценку к непубличной записи
     queryset = Comment.objects.all()
     serializer_class = serializers.CommentPostSerializer
 
@@ -31,7 +32,9 @@ class NoteListCreateAPIView(ListCreateAPIView):
         return queryset\
             .filter(
                 Q(author=self.request.user) | Q(public=True)
-            )\
+            ) \
+            .select_related('author') \
+            .prefetch_related('comments') \
             .order_by('complete_time', 'important')
 
     def perform_create(self, serializer):
@@ -69,4 +72,6 @@ class NoteDetailAPIView(RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         queryset = super().get_queryset()
         return queryset \
-            .filter(author=self.request.user)
+            .filter(author=self.request.user) \
+            .select_related('author') \
+            .prefetch_related('comments')
