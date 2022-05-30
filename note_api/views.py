@@ -26,8 +26,7 @@ class NoteListCreateAPIView(ListCreateAPIView):
                 queryset,
                 status=self.request.query_params.get('status')
             )
-        # ToDo
-        elif 'status_1' in self.request.query_params and 'status_2' in self.request.query_params:
+        elif 'status_1' in self.request.query_params or 'status_2' in self.request.query_params:
             queryset = filters.note_multi_status_filter(
                 queryset,
                 status_1=self.request.query_params.get('status_1'),
