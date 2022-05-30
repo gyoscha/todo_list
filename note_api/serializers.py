@@ -5,13 +5,43 @@ from rest_framework import serializers
 from note import models
 
 
+class CommentPostSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True
+    )
+
+    class Meta:
+        model = models.Comment
+        fields = (
+            'id', 'note', 'rating',
+            'author'
+        )
+
+
 class NoteSerializer(serializers.ModelSerializer):
+
+    author = serializers.SlugRelatedField(
+        slug_field="username",
+        read_only=True
+    )
+
+    comments = CommentPostSerializer(many=True, read_only=True)
+
+    status = serializers.SerializerMethodField('get_status')
+
+    def get_status(self, obj: models.Note):
+        return {
+            'value': obj.status,
+            'display': obj.get_status_display()
+        }
+
     class Meta:
         model = models.Note
-        fields = '__all__'
-        extra_kwargs = {
-            'author': {'read_only': True},
-        }
+        fields = (
+            'id', 'title', 'note', 'status', 'important', 'public', 'complete_time', 'create_at',
+            'author', 'comments'
+        )
 
     def to_representation(self, instance):
         """ Переопределение вывода. Меняем формат даты в ответе """

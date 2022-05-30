@@ -1,8 +1,25 @@
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, ListCreateAPIView
 from django.db.models import Q
 
-from note.models import Note
+from note.models import Note, Comment
 from . import serializers, filters
+
+
+class CommentNoteListCreateAPIView(ListCreateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = serializers.CommentPostSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset\
+            .filter(
+                Q(note__public=True)
+            )
+
+    def perform_create(self, serializer):
+        serializer.save(
+            author=self.request.user
+        )
 
 
 class NoteListCreateAPIView(ListCreateAPIView):
