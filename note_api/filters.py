@@ -6,12 +6,12 @@ from django_filters import rest_framework as filters
 from note.models import Note
 
 
-# class NoteFilter(filters.FilterSet):
-#     class Meta:
-#         model = Note
-#         fields = [
-#             'status', 'important', 'public',
-#         ]
+class NoteFilter(filters.FilterSet):
+    class Meta:
+        model = Note
+        fields = [
+            'status', 'important', 'public',
+        ]
 
 
 def note_status_filter(queryset, status: Optional[str]):

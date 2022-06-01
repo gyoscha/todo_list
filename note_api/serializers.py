@@ -48,7 +48,7 @@ class NoteSerializer(serializers.ModelSerializer):
         return ret
 
 
-# class QueryParamsNoteFilterSerializer(serializers.Serializer):
-#     status = serializers.ListField(
-#         child=serializers.ChoiceField(choices=models.Note.Status.choices), required=False,
-#     )
+class QueryParamsNoteFilterSerializer(serializers.Serializer):
+    status = serializers.ListField(
+        child=serializers.ChoiceField(choices=models.Note.Status.choices), required=False,
+    )

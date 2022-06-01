@@ -1,13 +1,14 @@
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, ListCreateAPIView
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.permissions import IsAuthenticated
 
 from note.models import Note, Comment
-from . import serializers, filters
+from . import serializers, filters, permissions
 
 
 class CommentNoteListCreateAPIView(ListCreateAPIView):
-    # ToDo Сделать чтобы нельзя было добавить оценку к непубличной записи
+    permission_classes = [IsAuthenticated]
     queryset = Comment.objects.all()
     serializer_class = serializers.CommentSerializer
 
@@ -25,16 +26,17 @@ class CommentNoteListCreateAPIView(ListCreateAPIView):
 
 
 class NoteListCreateAPIView(ListCreateAPIView):
+    permission_classes = [IsAuthenticated | permissions.OnlyAuthorEditNote]
     queryset = Note.objects.all()
     serializer_class = serializers.NoteSerializer
-    # filter_backends = [DjangoFilterBackend]
-    # filterset_class = filters.NoteFilter
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = filters.NoteFilter
 
     def get_queryset(self):
         queryset = super().get_queryset()
         return queryset\
             .filter(
-                Q(author=self.request.user) |
+                Q(author__in=[self.request.user]) |
                 Q(public=True)
             ) \
             .select_related('author') \
@@ -45,37 +47,24 @@ class NoteListCreateAPIView(ListCreateAPIView):
         serializer.save(author=self.request.user)
 
     def filter_queryset(self, queryset):
-        if 'status' in self.request.query_params:
-            queryset = filters.note_status_filter(
-                queryset,
-                status=self.request.query_params.get('status')
-            )
-        elif 'status_1' in self.request.query_params or 'status_2' in self.request.query_params:
-            queryset = filters.note_multi_status_filter(
-                queryset,
-                status_1=self.request.query_params.get('status_1'),
-                status_2=self.request.query_params.get('status_2'),
-            )
-        elif 'important' in self.request.query_params:
-            queryset = filters.note_important_filter(
-                queryset,
-                important=self.request.query_params.get('important')
-            )
-        elif 'public' in self.request.query_params:
-            queryset = filters.note_public_filter(
-                queryset,
-                public=self.request.query_params.get('public')
-            )
+        query_params = serializers.QueryParamsNoteFilterSerializer(data=self.request.query_params)
+        query_params.is_valid(raise_exception=True)
+
+        status = query_params.data.get("status")
+        if status:
+            queryset = queryset.filter(status__in=query_params.data["status"])
+
         return queryset
 
 
 class NoteDetailAPIView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated | permissions.OnlyAuthorEditNote]
     queryset = Note.objects.all()
     serializer_class = serializers.NoteSerializer
 
     def get_queryset(self):
         queryset = super().get_queryset()
         return queryset \
-            .filter(author=self.request.user) \
+            .filter(author__in=[self.request.user]) \
             .select_related('author') \
             .prefetch_related('comments')
