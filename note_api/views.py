@@ -1,5 +1,6 @@
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, ListCreateAPIView
 from django.db.models import Q
+from django_filters.rest_framework import DjangoFilterBackend
 
 from note.models import Note, Comment
 from . import serializers, filters
@@ -8,7 +9,7 @@ from . import serializers, filters
 class CommentNoteListCreateAPIView(ListCreateAPIView):
     # ToDo Сделать чтобы нельзя было добавить оценку к непубличной записи
     queryset = Comment.objects.all()
-    serializer_class = serializers.CommentPostSerializer
+    serializer_class = serializers.CommentSerializer
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -26,12 +27,15 @@ class CommentNoteListCreateAPIView(ListCreateAPIView):
 class NoteListCreateAPIView(ListCreateAPIView):
     queryset = Note.objects.all()
     serializer_class = serializers.NoteSerializer
+    # filter_backends = [DjangoFilterBackend]
+    # filterset_class = filters.NoteFilter
 
     def get_queryset(self):
         queryset = super().get_queryset()
         return queryset\
             .filter(
-                Q(author=self.request.user) | Q(public=True)
+                Q(author=self.request.user) |
+                Q(public=True)
             ) \
             .select_related('author') \
             .prefetch_related('comments') \

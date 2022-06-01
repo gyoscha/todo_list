@@ -5,10 +5,11 @@ from rest_framework import serializers
 from note import models
 
 
-class CommentPostSerializer(serializers.ModelSerializer):
+class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Comment
         fields = '__all__'
+        read_only_fields = ("author",)
 
 
 class NoteSerializer(serializers.ModelSerializer):
@@ -18,7 +19,7 @@ class NoteSerializer(serializers.ModelSerializer):
         read_only=True
     )
 
-    comments = CommentPostSerializer(many=True, read_only=True)
+    comments = CommentSerializer(many=True, read_only=True)
 
     status = serializers.SerializerMethodField('get_status')
 
@@ -45,3 +46,9 @@ class NoteSerializer(serializers.ModelSerializer):
         ret['create_at'] = create_at.strftime('%d %B %Y - %H:%M:%S')
         ret['complete_time'] = complete_time.strftime('%d %B %Y - %H:%M:%S')
         return ret
+
+
+# class QueryParamsNoteFilterSerializer(serializers.Serializer):
+#     status = serializers.ListField(
+#         child=serializers.ChoiceField(choices=models.Note.Status.choices), required=False,
+#     )
