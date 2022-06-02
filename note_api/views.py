@@ -8,7 +8,7 @@ from . import serializers, filters, permissions
 
 
 class CommentNoteListCreateAPIView(ListCreateAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]   # fixme [IsAuthenticated | permissions.OnlyAuthorEditNote], разобраться с post комментария
     queryset = Comment.objects.all()
     serializer_class = serializers.CommentSerializer
 
@@ -27,6 +27,7 @@ class CommentNoteListCreateAPIView(ListCreateAPIView):
 
 class NoteListCreateAPIView(ListCreateAPIView):
     permission_classes = [IsAuthenticated | permissions.OnlyAuthorEditNote]
+
     queryset = Note.objects.all()
     serializer_class = serializers.NoteSerializer
     filter_backends = [DjangoFilterBackend]
@@ -36,7 +37,7 @@ class NoteListCreateAPIView(ListCreateAPIView):
         queryset = super().get_queryset()
         return queryset\
             .filter(
-                Q(author__in=[self.request.user]) |
+                Q(author=self.request.user) |
                 Q(public=True)
             ) \
             .select_related('author') \
@@ -47,6 +48,7 @@ class NoteListCreateAPIView(ListCreateAPIView):
         serializer.save(author=self.request.user)
 
     def filter_queryset(self, queryset):
+        queryset = super().filter_queryset(queryset)
         query_params = serializers.QueryParamsNoteFilterSerializer(data=self.request.query_params)
         query_params.is_valid(raise_exception=True)
 

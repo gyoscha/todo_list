@@ -10,7 +10,7 @@ class NoteFilter(filters.FilterSet):
     class Meta:
         model = Note
         fields = [
-            'status', 'important', 'public',
+            'important', 'public',
         ]
 
 
