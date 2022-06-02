@@ -8,7 +8,7 @@ from . import serializers, filters, permissions
 
 
 class CommentNoteListCreateAPIView(ListCreateAPIView):
-    permission_classes = [IsAuthenticated]   # fixme [IsAuthenticated | permissions.OnlyAuthorEditNote], разобраться с post комментария
+    permission_classes = [IsAuthenticated | permissions.OnlyPublicNoteAddComment]   # fixme [IsAuthenticated | permissions.OnlyPublicNoteAddComment], разобраться с post комментария
     queryset = Comment.objects.all()
     serializer_class = serializers.CommentSerializer
 
