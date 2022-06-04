@@ -21,14 +21,6 @@ class NoteSerializer(serializers.ModelSerializer):
 
     comments = CommentSerializer(many=True, read_only=True)
 
-    status = serializers.SerializerMethodField('get_status')
-
-    def get_status(self, obj: models.Note):
-        return {
-            'value': obj.status,
-            'display': obj.get_status_display()
-        }
-
     class Meta:
         model = models.Note
         fields = (
