@@ -1,28 +1,52 @@
+from rest_framework import status
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, ListCreateAPIView
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from note.models import Note, Comment
 from . import serializers, filters, permissions
 
 
-class CommentNoteListCreateAPIView(ListCreateAPIView):
-    permission_classes = [IsAuthenticated | permissions.OnlyPublicNoteAddComment]   # fixme [IsAuthenticated | permissions.OnlyPublicNoteAddComment], разобраться с post комментария
-    queryset = Comment.objects.all()
-    serializer_class = serializers.CommentSerializer
+# class CommentNoteListCreateAPIView(ListCreateAPIView):
+#     permission_classes = [IsAuthenticated | permissions.OnlyPublicNoteAddComment]
+#     queryset = Comment.objects.all()
+#     serializer_class = serializers.CommentSerializer
+#
+#     def perform_create(self, serializer):
+#         serializer.save(
+#             author=self.request.user
+#         )
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        return queryset\
-            .filter(
-                Q(note__public=True)
-            )
+class CommentNoteListCreateAPIView(APIView):
+    def get(self, request: Request) -> Response:
+        comment = Comment.objects.all()
 
-    def perform_create(self, serializer):
-        serializer.save(
-            author=self.request.user
+        serializer = serializers.CommentSerializer(
+            instance=comment,
+            many=True,
         )
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request: Request) -> Response:
+        msg = 'Note is NOT public!!!'
+
+        serializer = serializers.CommentSerializer(
+            data=request.data
+        )
+
+        serializer.is_valid(raise_exception=True)
+        serializer.save(author=request.user)
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED
+        )
+
 
 
 class NoteListCreateAPIView(ListCreateAPIView):

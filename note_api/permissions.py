@@ -16,4 +16,5 @@ class OnlyPublicNoteAddComment(BasePermission):
         if request.method in SAFE_METHODS:
             return True
 
-        return obj.note.public
+        if obj.note.public:
+            return True
